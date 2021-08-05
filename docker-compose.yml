@@ -1,0 +1,35 @@
+version: '3'
+services:
+  db:
+    image: mongo:4.2.8
+    container_name: db
+    ports:
+      - "4000:27017"
+  video-storage:
+    image: video-storage
+    build:
+      context: ./video-storage
+      dockerfile: Dockerfile
+    container_name: video-storage
+    ports:
+      - "4001:80"
+    environment:
+      - PORT=80
+      - STORAGE_ACCOUNT_NAME=bgerreg
+      - STORAGE_ACCESS_KEY=cZG0QKB2fUC+R6DPSgY2nWsvBougUsej3b4Pki9UaKsYixAWPW9GG03bq3yiNv3WCVDZj5E8VN3y3uNdi8bB0A==
+    restart: "no"
+  video-streaming:
+    image: video-streaming
+    build:
+      context: ./video-streaming-service
+      dockerfile: Dockerfile
+    container_name: video-streaming
+    ports:
+        - "4002:80"
+    environment:
+        - PORT=80
+        - DBHOST=mongodb://db:27017
+        - DBNAME=video-streaming
+        - VIDEO_STORAGE_HOST=video-storage
+        - VIDEO_STORAGE_PORT=80
+    restart: "no"
